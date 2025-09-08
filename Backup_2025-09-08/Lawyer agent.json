@@ -1,0 +1,1384 @@
+{
+  "createdAt": "2025-09-07T14:34:01.029Z",
+  "updatedAt": "2025-09-07T17:34:39.000Z",
+  "id": "PFPkDMw7i6rMTugv",
+  "name": "Lawyer agent",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.events[0].message.text }}",
+        "options": {
+          "systemMessage": "=You are a helpful assistant.\n\nHere is the current date {{ $now }}"
+        }
+      },
+      "id": "67cf31bd-5df8-42c6-9093-e1c71b1bc4c7",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -4700,
+        -580
+      ],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.events[0].source.userId }}"
+      },
+      "id": "c8ad599d-fc63-49f2-a0ba-603803a84542",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        -4740,
+        -60
+      ],
+      "typeVersion": 1.3
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "69b26d14-2338-4c0c-98b6-7062a0788510",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -4920,
+        -40
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "openAiApi": {
+          "id": "5Z23zpm1GghShiyb",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "625cd708-dc17-4702-bad0-a51abe83cf13",
+      "name": "Wikipedia",
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "position": [
+        -3980,
+        -80
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "Your task is to extract and condense the answer into an easily readable format. Don't provide a link or details such as \"ดูเพิ่มเติม\" or \"ดูรายละเอียดได้ที่นี่.\"",
+              "role": "system"
+            },
+            {
+              "content": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "753fc6b7-4928-4812-8ddf-0d0af92a49b0",
+      "name": "OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -4240,
+        -560
+      ],
+      "typeVersion": 1.7,
+      "credentials": {
+        "openAiApi": {
+          "id": "5Z23zpm1GghShiyb",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Line Receiving').item.json.body.events[0].message.type }}",
+                    "rightValue": "text"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "12c7be75-8942-432b-a37a-a1e3c62e02ce",
+      "name": "Switch Between Text and Others",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -5240,
+        100
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "linechatbotagent",
+        "options": {}
+      },
+      "id": "c3bedcb4-18db-4aaa-abc6-c833dda912bb",
+      "name": "Line Receiving",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -5600,
+        100
+      ],
+      "webhookId": "********-****-****-****-************",
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.message.content }}",
+                    "rightValue": "={{ $json.output }}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "6d2a9343-ab88-4973-ae18-74ae229085e5",
+      "name": "Error Handling from AI Response",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -3700,
+        -360
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "********-****-****-****-************",
+              "name": "message.content",
+              "type": "string",
+              "value": "={{ $json.message.content.replaceAll(\"\\n\",\"\\\\n\").replaceAll(\"\\n\",\"\").removeMarkdown().removeTags().replaceAll('\"',\"\") }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4b7ea118-efee-4d0b-a6c0-2053591b9e66",
+      "name": "Text Cleansing",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -3420,
+        -540
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/reply",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n\"Authorization\": \"Bearer ****************************************\",\n\"Content-Type\": \"application/json\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n \"replyToken\": \"{{ $('Line Receiving').item.json.body.events[0].replyToken }}\",\n \"messages\": [\n {\n \"type\": \"text\",\n \"text\": \"กรุณาส่งอย่างอื่นเถอะนะเตงอัว\"\n }\n ]}",
+        "options": {}
+      },
+      "id": "21e37214-6b1a-4993-a871-79204ec22757",
+      "name": "Line Answering (Error Case)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -3440,
+        20
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/reply",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n\"Authorization\": \"Bearer ****************************************\",\n\"Content-Type\": \"application/json\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n \"replyToken\": \"{{ $('Line Receiving').item.json.body.events[0].replyToken }}\",\n \"messages\": [\n {\n \"type\": \"text\",\n \"text\": \"{{ $json.message.content }}\"\n }\n ]}",
+        "options": {}
+      },
+      "id": "454da126-d071-4db0-8515-41d6921dc416",
+      "name": "Line Answering (Ordinary Case)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -3140,
+        -660
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "***********@gmail.com",
+          "cachedResultName": "***********@gmail.com"
+        },
+        "start": "= {{ $fromAI(\"createstartdate\",\"start date and time to create event\") }}",
+        "end": "= {{ $fromAI(\"createenddate\",\"end date and time to create event\") }}",
+        "additionalFields": {
+          "summary": "={{ $fromAI(\"event_name\",\"Name of an Event\") }}"
+        }
+      },
+      "id": "202dacc2-ea82-49dd-87a0-6c06be5a4365",
+      "name": "Google Calendar Create",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "position": [
+        -4120,
+        -80
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "***********@gmail.com",
+          "cachedResultName": "***********@gmail.com"
+        },
+        "limit": 5,
+        "options": {
+          "timeMin": "={{ $fromAI(\"startdate\",\"start date user mentioned about\") }}",
+          "timeMax": "={{ $fromAI(\"enddate\",\"end date user mentioned about\") }}"
+        }
+      },
+      "id": "fad21078-dc8c-438d-9c8c-ca9f161e210d",
+      "name": "Google Calendar Read",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "position": [
+        -4520,
+        -60
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 5,
+        "filters": {
+          "receivedAfter": "={{ $fromAI(\"receiveddate\",\"the date email received\") }}"
+        }
+      },
+      "id": "39ef77d9-0e8a-46bb-96e7-2117a76404c3",
+      "name": "Gmail Read",
+      "type": "n8n-nodes-base.gmailTool",
+      "position": [
+        -4320,
+        -60
+      ],
+      "webhookId": "********-****-****-****-************",
+      "typeVersion": 2.1
+    },
+    {
+      "parameters": {
+        "content": "Document Summary",
+        "height": 700,
+        "width": 2180
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2220,
+        -1380
+      ],
+      "typeVersion": 1,
+      "id": "80901b80-25a3-467a-a0ea-bf9b0152eef2",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "q": "has:attachment AND Complaint OR Contract OR Filing"
+        },
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -2180,
+        -1120
+      ],
+      "id": "7cc17853-0665-47de-8443-d7f6edb67f4c",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "sZgK1tz63wnZAjhT",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "attachment_0",
+        "name": "={{ $json.subject }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1d-v_2brIOiaZqojcfreeqFlF0sMzgtW1",
+          "mode": "list",
+          "cachedResultName": "Lawyer",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1d-v_2brIOiaZqojcfreeqFlF0sMzgtW1"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1960,
+        -1120
+      ],
+      "id": "2faa0866-d892-4424-a533-2491598d14d7",
+      "name": "Google Drive1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "gQec8wQnEs9V9XWa",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1740,
+        -1120
+      ],
+      "id": "ea474c35-6ee8-42f2-ba39-be0a8365dcb4",
+      "name": "Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "gQec8wQnEs9V9XWa",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -1520,
+        -1120
+      ],
+      "id": "ffc21bc6-76fa-4055-930e-1797f5a3f627",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1XCMDpLdB7g0NuzgyKHxjzJNsTVtyD-u7hSHDZbqR1Bc",
+          "mode": "list",
+          "cachedResultName": "lawyer",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XCMDpLdB7g0NuzgyKHxjzJNsTVtyD-u7hSHDZbqR1Bc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XCMDpLdB7g0NuzgyKHxjzJNsTVtyD-u7hSHDZbqR1Bc/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Issue 1",
+              "displayName": "Issue 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Issue 2",
+              "displayName": "Issue 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Issue 3",
+              "displayName": "Issue 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Issue 4",
+              "displayName": "Issue 4",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Issue 5",
+              "displayName": "Issue 5",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Deadline",
+              "displayName": "Deadline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -760,
+        -1240
+      ],
+      "id": "33e5dc3f-1050-428c-8045-73c321d1c9ba",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PcNjSJXGJAZkDWEI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -760,
+        -1060
+      ],
+      "id": "38424e12-0aac-4091-8eab-f8c0e4c25bbc",
+      "name": "Gmail",
+      "webhookId": "537252f9-6bbe-4f35-aee0-c89c792acb84",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "sZgK1tz63wnZAjhT",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -1300,
+        -1120
+      ],
+      "id": "4287bf49-8537-41f1-8e3d-5028a495a658",
+      "name": "OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "5Z23zpm1GghShiyb",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Contract Analysis",
+        "height": 780,
+        "width": 2200,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2220,
+        -580
+      ],
+      "typeVersion": 1,
+      "id": "20311cc3-a028-4207-a21a-89e1256c45d1",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "Line Integration",
+        "height": 1200,
+        "width": 2920,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -5780,
+        -820
+      ],
+      "typeVersion": 1,
+      "id": "837878c7-fc89-4268-8202-fab93d39038a",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1ggDLEGcdbSRUzJZfkkGt33grcX0luC5V",
+          "mode": "list",
+          "cachedResultName": "Lawyer g drive",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1ggDLEGcdbSRUzJZfkkGt33grcX0luC5V"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2100,
+        -220
+      ],
+      "id": "7e4bcd5b-7691-45f8-ac61-534350c77990",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "gQec8wQnEs9V9XWa",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1880,
+        -220
+      ],
+      "id": "135f6c6f-b17e-4c99-a7a2-060db21276f4",
+      "name": "Google Drive2",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "gQec8wQnEs9V9XWa",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -1660,
+        -220
+      ],
+      "id": "852a0c8a-a09e-4d1a-af6f-7b5a4d66bfb6",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "messages": {
+          "values": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -1440,
+        -220
+      ],
+      "id": "76cb333b-9964-435d-b75e-e47919128f18",
+      "name": "OpenAI2",
+      "credentials": {
+        "openAiApi": {
+          "id": "5Z23zpm1GghShiyb",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1CDr_wRW9IvZk9H4tIi4p0XufJqGIyqkA9LwYXFu6JsI",
+          "mode": "list",
+          "cachedResultName": "Lawyer Drive",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CDr_wRW9IvZk9H4tIi4p0XufJqGIyqkA9LwYXFu6JsI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CDr_wRW9IvZk9H4tIi4p0XufJqGIyqkA9LwYXFu6JsI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Contract",
+              "displayName": "Contract",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Analysis",
+              "displayName": "Analysis",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -1000,
+        -400
+      ],
+      "id": "f24945ce-ed58-49bb-b70c-9a1b156a4a9a",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PcNjSJXGJAZkDWEI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -980,
+        -120
+      ],
+      "id": "de9902cd-9e00-4a0f-93e3-f4bcc8016858",
+      "name": "Gmail1",
+      "webhookId": "7cfe4814-761f-4c92-9c63-0ab3986e77e1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "sZgK1tz63wnZAjhT",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Personal Assitant",
+        "height": 680,
+        "width": 1060
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4440,
+        -1620
+      ],
+      "typeVersion": 1,
+      "id": "c08283f1-f6c5-4603-b40f-88d39da8c11d",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -4300,
+        -1400
+      ],
+      "id": "7b93a7e7-abb3-4171-ac19-c78753bb6355",
+      "name": "When chat message received",
+      "webhookId": "a5a7af13-72fd-4020-a02a-b9b0238ef628"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -4080,
+        -1460
+      ],
+      "id": "48751d8a-3334-4fd1-865b-2bfa2a2a86de",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -4160,
+        -1220
+      ],
+      "id": "137ad6f4-9b6e-4954-9632-3a34a885358a",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "katfSK1nuq6w2Ezt",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -4020,
+        -1200
+      ],
+      "id": "efaff433-25c1-4aa7-8f7f-8b4c177b9a05",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        -3880,
+        -1200
+      ],
+      "id": "bfb88f1b-1048-4760-af54-e085cd696b48",
+      "name": "Document Summary",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PcNjSJXGJAZkDWEI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        -3760,
+        -1200
+      ],
+      "id": "57e67188-f3d1-42d4-9a69-937391b1618f",
+      "name": "Contract Analysis",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PcNjSJXGJAZkDWEI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        -3640,
+        -1200
+      ],
+      "id": "945f367c-eb52-49fc-ac61-874a27ee59a8",
+      "name": "Gmail2",
+      "webhookId": "a61c3101-36f9-4603-a240-fe9dfb5c5538",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "sZgK1tz63wnZAjhT",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Error Handling from AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Read": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Line Receiving": {
+      "main": [
+        [
+          {
+            "node": "Switch Between Text and Others",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Cleansing": {
+      "main": [
+        [
+          {
+            "node": "Line Answering (Ordinary Case)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar Read": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar Create": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Between Text and Others": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Line Answering (Error Case)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Handling from AI Response": {
+      "main": [
+        [
+          {
+            "node": "Text Cleansing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Line Answering (Error Case)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Drive1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive1": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Drive2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive2": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "OpenAI2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI2": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Gmail1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Document Summary": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contract Analysis": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail2": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {
+    "Line Receiving": [
+      {
+        "json": {
+          "body": {
+            "events": [
+              {
+                "mode": "active",
+                "type": "message",
+                "source": {
+                  "type": "user",
+                  "userId": "****************************************"
+                },
+                "message": {
+                  "id": "539986086979174564",
+                  "text": "",
+                  "type": "text",
+                  "quoteToken": "****************************************"
+                },
+                "timestamp": 1734688093030,
+                "replyToken": "********************************",
+                "webhookEventId": "01JFHQFD2KQE4BA5VVW32YDBZV",
+                "deliveryContext": {
+                  "isRedelivery": false
+                }
+              }
+            ],
+            "destination": "****************************************"
+          },
+          "query": {},
+          "params": {},
+          "headers": {
+            "host": "n8n-9pul.onrender.com",
+            "cf-ray": "****************",
+            "rndr-id": "****************",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-ew-via": "15",
+            "cf-worker": "onrender.com",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "user-agent": "LineBotWebhook/2.0",
+            "cf-ipcountry": "JP",
+            "content-type": "application/json; charset=utf-8",
+            "content-length": "619",
+            "true-client-ip": "***.***.***.**",
+            "accept-encoding": "gzip, br",
+            "x-forwarded-for": "***.***.***.***, ***.***.***.**",
+            "x-request-start": "1734688093431195",
+            "cf-connecting-ip": "***.***.***.**",
+            "render-proxy-ttl": "4",
+            "x-line-signature": "****************************************",
+            "x-forwarded-proto": "https"
+          },
+          "webhookUrl": "https://n8n-9pul.onrender.com/webhook/linechatbotagent",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "versionId": "908aec87-7e71-4033-99bd-47f163641845",
+  "triggerCount": 0,
+  "tags": []
+}
