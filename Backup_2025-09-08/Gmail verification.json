@@ -1,0 +1,111 @@
+{
+  "createdAt": "2025-09-07T13:31:05.766Z",
+  "updatedAt": "2025-09-07T14:26:57.000Z",
+  "id": "Byrfi24iP5i4A7Wl",
+  "name": "Gmail verification",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "url": "=https://api.ValidEmail.net/?email={{ $json.Email }}&token=bca60d1cc8bf44e68743c2a44932858f",
+        "sendQuery": true,
+        "specifyQuery": "json",
+        "jsonQuery": "{\n  \"email\": \"the_email_you_sent\",\n  \"state\": \"valid\",\n  \"reason\": \"accepted_email\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        480
+      ],
+      "id": "9512f1c7-9cca-4bdc-8620-eb41be095e1c",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -540,
+        460
+      ],
+      "id": "3aed4e4b-c6fe-4437-b78b-c0c4c08e279c",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -280,
+        460
+      ],
+      "id": "806be3fa-ba99-4129-b661-20f03a3f54ae",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -20,
+        480
+      ],
+      "id": "c16b4a4e-d1dc-49b0-a2c2-2716a46f31de",
+      "name": "Wait",
+      "webhookId": "249abe70-bb17-4ba2-b121-ec2fb1d0e368"
+    }
+  ],
+  "connections": {
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "e484325b-b748-481e-97ac-5b57a79555c0",
+  "triggerCount": 0,
+  "tags": []
+}
