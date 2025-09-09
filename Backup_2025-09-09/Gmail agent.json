@@ -1,0 +1,256 @@
+{
+  "createdAt": "2025-09-07T13:32:38.890Z",
+  "updatedAt": "2025-09-07T13:32:46.000Z",
+  "id": "xE4fRPLLrR6OGfhU",
+  "name": "Gmail agent",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1220,
+        160
+      ],
+      "id": "07419253-b451-4e73-b3eb-e06537cbc56a",
+      "name": "Webhook",
+      "webhookId": "68a9b4a4-98be-4e21-aa0a-1a20aa2fd77b"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d95972ab-a7f0-4113-8800-0c1743dc9fe7",
+              "leftValue": "={{ $json.Email }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -560,
+        160
+      ],
+      "id": "3665e347-c06c-4a9b-9068-66c285103c75",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -60,
+        -80
+      ],
+      "id": "5c86650c-ea40-44cb-ba9c-6f70415997f5",
+      "name": "Append row in sheet1",
+      "credentials": {}
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        160,
+        -80
+      ],
+      "id": "4b92f3d5-57de-4a61-99f5-900e8084adcb",
+      "name": "Get row(s) in sheet",
+      "credentials": {}
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        380,
+        -80
+      ],
+      "id": "6f9a369a-92e6-4cc8-86b6-1ebe4493b2ef",
+      "name": "Get row(s) in sheet1",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Get row(s) in sheet').item.json.Email }}",
+        "subject": "Your lead Magnet",
+        "message": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Your Free Guide</title>\n</head>\n<body style=\"margin:0; padding:0; font-family: Arial, sans-serif; background-color:#f7f7f7;\">\n\n  <!-- Container -->\n  <table align=\"center\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"max-width:600px; background:#ffffff; border-radius:8px; overflow:hidden;\">\n    \n    <!-- Header -->\n    <tr>\n      <td style=\"background: linear-gradient(90deg, #5CCEFF, #7BE0F6); padding:20px; text-align:center; color:#fff; font-size:22px; font-weight:bold;\">\n        🎉 Your Free Guide is Here!\n      </td>\n    </tr>\n\n    <!-- Body -->\n    <tr>\n      <td style=\"padding:30px; text-align:center; color:#333;\">\n        <h2 style=\"margin:0; font-size:20px; font-weight:600;\">Unlock Exclusive Insights</h2>\n        <p style=\"font-size:15px; line-height:22px; margin:20px 0;\">\n          Thanks for joining our community! As promised, here’s your free \n          <strong>Lead Magnet</strong> – packed with tips, strategies, and insights to help you succeed.\n        </p>\n        <p style=\"font-size:15px; line-height:22px;\">Click the button below to download instantly:</p>\n        \n        <!-- Button -->\n        <a href=\"{{ $json.URL }}\" style=\"display:inline-block; margin:20px 0; padding:14px 28px; background:linear-gradient(90deg, #ff6a95, #ff9a6c); color:#fff; font-size:16px; font-weight:bold; border-radius:40px; text-decoration:none;\">\n          ⬇️ Download Now\n        </a>\n      </td>\n    </tr>\n\n    <!-- Pro Tip Section -->\n    <tr>\n      <td style=\"background:#f2f9ff; padding:20px; text-align:center; font-size:14px; color:#555;\">\n        💡 <strong>Pro Tip</strong><br>\n        Bookmark this guide – you’ll want to refer back often!\n      </td>\n    </tr>\n\n  </table>\n\n</body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        840,
+        -80
+      ],
+      "id": "375cb76e-44c1-45a7-8667-893cf6c8b6ab",
+      "name": "Send a message",
+      "webhookId": "22934b4b-75f4-4a2a-a0c7-23518614e238"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1260,
+        -80
+      ],
+      "id": "f03c0af7-42d0-40fa-809b-c63285098bb5",
+      "name": "Update row in sheet",
+      "credentials": {}
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1000,
+        160
+      ],
+      "id": "225085f6-0db8-44c4-a1d8-597a290d805d",
+      "name": "Get row(s) in sheet2",
+      "alwaysOutputData": true,
+      "credentials": {}
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -240,
+        320
+      ],
+      "id": "d2e8bbb2-1f62-49ed-96a6-8d245e27bf0d",
+      "name": "Append row in sheet",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -780,
+        160
+      ],
+      "id": "2b6ab194-c2d0-4646-8aed-b56cd44e32c2",
+      "name": "Wait",
+      "webhookId": "7e353feb-25d8-4bd7-9890-57e4cef8a1ff"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -320,
+        -80
+      ],
+      "id": "f381f48c-0af4-44fc-97db-d53f1be32bb5",
+      "name": "Wait1",
+      "webhookId": "2aa229b2-17e5-4d44-8208-6ee7e53fe642"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        600,
+        -80
+      ],
+      "id": "81ee9f1e-32ed-4522-a515-645ee9142f9d",
+      "name": "Wait2",
+      "webhookId": "387995fa-5c3e-48d6-94d9-e170fa1bb995"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        -80
+      ],
+      "id": "848a4513-c610-41de-bfdc-3c15c136636a",
+      "name": "Wait3",
+      "webhookId": "d0457a4b-9312-4d2c-98fc-a64c9e65adb1"
+    }
+  ],
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "a612dcd0-9d95-4299-a576-938256ff5852",
+  "triggerCount": 0,
+  "tags": []
+}
